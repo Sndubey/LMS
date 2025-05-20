@@ -4,3 +4,8 @@
 * {
   font-family: 'Outfit', sans-serif;
 }
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}

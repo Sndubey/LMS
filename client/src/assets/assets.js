@@ -8,6 +8,11 @@ import accenture_logo from './accenture_logo.svg'
 import adobe_logo from './adobe_logo.svg'
 import paypal_logo from './paypal_logo.svg'
 import star from './rating_star.svg'
+import star_blank from './star_dull_icon.svg'
+import profile_img_1 from './profile_img_1.png'
+import profile_img_2 from './profile_img_2.png'
+import profile_img_3 from './profile_img_3.png'
+import arrow_icon from './arrow_icon.svg'
 
 
 export const assets = {
@@ -21,7 +26,37 @@ export const assets = {
     adobe_logo,
     paypal_logo,
     star,
+    star_blank,
+    profile_img_1,
+    profile_img_2,
+    profile_img_3,
+    arrow_icon,
+
 }
+
+export const dummyTestimonial = [
+    {
+        name: 'Donald Jackman',
+        role: 'SWE 1 @ Amazon',
+        image: assets.profile_img_1,
+        rating: 5,
+        feedback: 'I\'ve been using Imagify for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.',
+    },
+    {
+        name: 'Richard Nelson',
+        role: 'SWE 2 @ Samsung',
+        image: assets.profile_img_2,
+        rating: 4,
+        feedback: 'I\'ve been using Imagify for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.',
+    },
+    {
+        name: 'James Washington',
+        role: 'SWE 2 @ Google',
+        image: assets.profile_img_3,
+        rating: 4.5,
+        feedback: 'I\'ve been using Imagify for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.',
+    },
+];
 
 export const dummyCourses = [
     {
