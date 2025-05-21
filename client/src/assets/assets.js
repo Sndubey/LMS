@@ -13,6 +13,7 @@ import profile_img_1 from './profile_img_1.png'
 import profile_img_2 from './profile_img_2.png'
 import profile_img_3 from './profile_img_3.png'
 import arrow_icon from './arrow_icon.svg'
+import logo_dark from './logo_dark.svg'
 
 
 export const assets = {
@@ -31,6 +32,7 @@ export const assets = {
     profile_img_2,
     profile_img_3,
     arrow_icon,
+    logo_dark,
 
 }
 
