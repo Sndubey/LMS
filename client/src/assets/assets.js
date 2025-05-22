@@ -14,6 +14,7 @@ import profile_img_2 from './profile_img_2.png'
 import profile_img_3 from './profile_img_3.png'
 import arrow_icon from './arrow_icon.svg'
 import logo_dark from './logo_dark.svg'
+import cross_icon from './cross_icon.svg'
 
 
 export const assets = {
@@ -33,7 +34,8 @@ export const assets = {
     profile_img_3,
     arrow_icon,
     logo_dark,
-
+    cross_icon,
+    
 }
 
 export const dummyTestimonial = [
