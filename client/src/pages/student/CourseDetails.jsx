@@ -9,8 +9,8 @@ const CourseDetails = () => {
 
   const { id } = useParams(); //get the course id from the url
   const [courseData, setCourseData] = useState(null);
-  const [openSections, setOpenSections] = useState(null); 
-  const { allCourses, calculateRating, calculateChapterTime } = useContext(AppContext);
+  const [openSections, setOpenSections] = useState({}); 
+  const { allCourses, calculateRating, calculateChapterTime, calculateCourseDuration, calculateNoOfLectures, } = useContext(AppContext);
 
   const fetchCourseData = async () => {
     const findCourse = allCourses.find(course => course._id === id)  //it fetches course data from allCourses if the course id matches
@@ -31,16 +31,16 @@ const CourseDetails = () => {
 
   return courseData ? (
     <>
-      <div className="flex md:flex-row flex-col-reverse relative items-start justify-between px-8 pt-20 text-left">
+      <div className="flex md:flex-row flex-col-reverse gap-10 relative items-start justify-between md:px-35 px-8 md:pt-30 pt-20 text-left">
 
-        <div className="absolute top-1 left-12 w-full h-section-height -z-1 bg-gradient from-cyan-100/20"></div>
+        <div className="absolute top-0 left-0 w-full h-section-height -z-1 bg-gradient -to-b from-cyan-100/70"></div>
         {/* left column */}
         <div className="max-w-xl z-10 text-gray-500">
-          <h1 className="md:text-4xl text-4xl font-bold text-gray-800">{courseData.courseTitle}</h1>
+          <h1 className="md:text-4xl text-2xl font-semibold text-gray-800">{courseData.courseTitle}</h1>
           <p className="pt-4 md:text-base text-sm" dangerouslySetInnerHTML={{ __html: courseData.courseDescription.slice(0, 200) }}></p>
 
           {/* Review and ratings */}
-          <div className='flex items-center space-x-4 pt-3 text-sm'>
+          <div className='flex items-center space-x-2 pt-3 pb-1 text-sm'>
             <p>{calculateRating(courseData)}</p>
             <div className='flex'>
               {[...Array(5)].map((_, i) => ( // for 5 star rating
@@ -58,11 +58,12 @@ const CourseDetails = () => {
             <div className="pt-5">
               {courseData.courseContent.map((chapter, index) => (
                 <div key={index} className="border border-gray-300 bg-white mb-2 rounded">
-                  <div className="flex items-center justify-between px-4 py-3 cursor-pointer select-none">
+                  <div onClick={()=> toggleSection(index)} className="flex items-center justify-between px-4 py-3 cursor-pointer select-none">
                     <div className="flex items-center gap-2">
                       <img className={`transform transition-transform ${openSections[index] ? 'rotate-180':''}`} src={assets.down_arrow_icon} alt="arrow icon" />
-                      <p className="font-bold md:text-base text-gray-500 text-sm">{chapter.chapterTitle}</p>
+                      <p className="font-medium md:text-base text-sm">{chapter.chapterTitle}</p>
                     </div>
+                    <p className="text-sm md:text-default">{chapter.chapterContent.length} lectures - {calculateChapterTime(chapter)}</p>
                   </div>
 
                   <div className={`overflow-hidden transition-all duration-300 ${openSections[index] ? 'max-h-96' : 'max-h-0'}`}>
@@ -70,10 +71,17 @@ const CourseDetails = () => {
                       {chapter.chapterContent.map((lecture, i) => (
                         <li key={i} className='flex items-start gap-2 py-1'>
                           <img src={assets.play_icon} alt='play icon' className='w-4 h-4 mt-1' />
-                          <div className='flex items-center justify-between w-full text-gray-800 text-sm '>
+                          <div className='flex items-center justify-between w-full text-gray-800 text-xs md:text-default'>
                             <p>{lecture.lectureTitle}</p>
                             <div className='flex gap-2'>
-                              <p className='text-blue-500 cursor-pointer'>Preview</p>
+                              {lecture.isPreviewFree && (
+                                <p className='text-blue-500 cursor-pointer'>Preview</p>
+                              )}
+                              <p>
+                                {humanizeDuration(lecture.lectureDuration * 60 * 1000, {
+                                  units: ['h', 'm'],
+                                })}
+                              </p>
                             </div>
                           </div>
                         </li>
