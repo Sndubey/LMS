@@ -23,11 +23,11 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/course-list" element={<CoursesList />} />
-        <Route path="/course-list/:input" element={<CoursesList />} />
+        <Route path="/course-list/:input" element={<CoursesList />} />  {/* for search functionality, input is the search query */}
         <Route path="/course/:id" element={<CourseDetails />} />
         <Route path="/my-enrollments" element={<MyEnrollments />} />
         <Route path="/player/:courseId" element={<Player />} />
-        <Route path="/loading/:path" element={<Loading />} />
+        <Route path="/loading/:path" element={<Loading />} />  
         <Route path='/educator' element={<Educator />}>  {/* use Outlet component in Educator component to make nested routing */}
           <Route path='educator' element={<Dashboard />} />
           <Route path='add-course' element={<AddCourse />} />

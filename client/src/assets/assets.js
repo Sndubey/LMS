@@ -17,6 +17,9 @@ import logo_dark from './logo_dark.svg'
 import cross_icon from './cross_icon.svg'
 import down_arrow_icon from './down_arrow_icon.svg'
 import play_icon from './play_icon.svg'
+import time_left_clock_icon from './time_left_clock_icon.svg'
+import time_clock_icon from './time_clock_icon.svg'
+import lesson_icon from './lesson_icon.svg'
 
 
 export const assets = {
@@ -39,6 +42,9 @@ export const assets = {
     cross_icon,
     down_arrow_icon,
     play_icon,
+    time_left_clock_icon,
+    time_clock_icon,
+    lesson_icon,
 }
 
 export const dummyTestimonial = [
