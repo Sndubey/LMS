@@ -20,6 +20,14 @@ import play_icon from './play_icon.svg'
 import time_left_clock_icon from './time_left_clock_icon.svg'
 import time_clock_icon from './time_clock_icon.svg'
 import lesson_icon from './lesson_icon.svg'
+import profile_img from './profile_img.png'
+import home_icon from './home_icon.svg'
+import add_icon from './add_icon.svg'
+import my_course_icon from './my_course_icon.svg'
+import person_tick_icon from './person_tick_icon.svg'
+import facebook_icon from './facebook_icon.svg'
+import instagram_icon from './instagram_icon.svg'
+import twitter_icon from './twitter_icon.svg'
 
 
 export const assets = {
@@ -45,6 +53,14 @@ export const assets = {
     time_left_clock_icon,
     time_clock_icon,
     lesson_icon,
+    profile_img,
+    home_icon,
+    add_icon,
+    my_course_icon,
+    person_tick_icon,
+    facebook_icon,
+    instagram_icon,
+    twitter_icon,
 }
 
 export const dummyTestimonial = [
@@ -618,3 +634,13 @@ export const dummyCourses = [
         "courseThumbnail": "https://img.youtube.com/vi/WbV3zRgpw_E/maxresdefault.jpg"
     }
 ]
+
+export const dummyEducatorData = {
+    "_id": "675ac1512100b91a6d9b8b24",
+    "name": "Shubham",
+    "email": "user.shubham@gmail.com",
+    "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yclFkaDBOMmFqWnBoTTRBOXZUanZxVlo0aXYifQ",
+    "createdAt": "2024-12-12T10:56:17.930Z",
+    "updatedAt": "2024-12-12T10:56:17.930Z",
+    "__v": 0
+}
