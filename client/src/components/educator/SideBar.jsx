@@ -5,13 +5,13 @@ import { NavLink } from 'react-router-dom';
 
 const SideBar = () => {
 
-  const {isEducator} = useContext(AppContext); 
+  const { isEducator } = useContext(AppContext);
 
   const menuItems = [
-    { name: 'Dashboard', path: '/educator/educator', icon: assets.home_icon },
+    { name: 'Dashboard', path: '/educator', icon: assets.home_icon },
     { name: 'Add Course', path: '/educator/add-course', icon: assets.add_icon },
     { name: 'My Courses', path: '/educator/my-courses', icon: assets.my_course_icon },
-    { name: 'Students Enrolled', path: '/educator/student-enrolled', icon: assets.person_tick_icon },  
+    { name: 'Students Enrolled', path: '/educator/student-enrolled', icon: assets.person_tick_icon },
   ]
 
   return isEducator && (
