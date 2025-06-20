@@ -31,6 +31,8 @@ import twitter_icon from './twitter_icon.svg'
 import patients_icon from './patients_icon.svg'
 import appointments_icon from './appointments_icon.svg'
 import earning_icon from './earning_icon.svg'
+import file_upload_icon from './file_upload_icon.svg'
+import dropdown_icon from './dropdown_icon.svg'
 
 
 export const assets = {
@@ -67,6 +69,8 @@ export const assets = {
     patients_icon,
     appointments_icon,
     earning_icon,
+    file_upload_icon,
+    dropdown_icon,
 }
 
 export const dummyTestimonial = [
