@@ -14,8 +14,8 @@ app.post('/clerk',express.json(),clerkWebhooks)
 
 const PORT = process.env.PORT || 5000
 
+await connectDB()
+
 app.listen(PORT, ()=>{
     console.log(`server is running on port ${PORT}`)
 })
-
-await connectDB()
