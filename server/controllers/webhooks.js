@@ -19,8 +19,6 @@ export const clerkWebhooks = async (req, res) => {
     const payload = JSON.parse(req.body.toString());
     const { data, type } = payload;
 
-    console.log('📋 Event type:', type);
-
     switch(type) {
       case 'user.created': {
         const userData = {
@@ -52,7 +50,6 @@ export const clerkWebhooks = async (req, res) => {
       }
 
       default:
-        console.log('⚠️ Unhandled event type:', type);
         return res.status(200).json({ success: true, message: 'Event acknowledged' });
     }
 

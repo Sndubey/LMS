@@ -3,12 +3,16 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './configs/mongodb.js';
 import { clerkWebhooks } from './controllers/webhooks.js';
+import educatorRouter from './routes/educatorRoutes.js';
+import { clerkMiddleware } from '@clerk/express';
 
 const app = express();
 
 app.use(cors());
+app.use(clerkMiddleware());  //applying clerk middleware to all routes (user data in req.auth)
 
 app.post('/clerk', express.raw({ type: 'application/json' }), clerkWebhooks);
+app.use('/api/educator', express.json(), educatorRouter);
 
 app.use(express.json());
 
