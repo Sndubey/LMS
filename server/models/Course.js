@@ -27,7 +27,7 @@ const courseSchema = new mongoose.Schema({
     courseRatings: [
         { userId: { type: String }, rating: { type: Number, min: 1, max: 5 } }
     ],
-    educator: { type: String, ref: 'User', required: true },
+    educator: { type: String, ref: 'User', required: true },   // it stores userID of User object/collection.
     enrolledStudents: [
         { type: String, ref: 'User' }
     ],
