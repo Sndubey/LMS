@@ -1,8 +1,8 @@
 import 'dotenv/config'
-import express from 'express';
+import express, { json } from 'express';
 import cors from 'cors';
 import connectDB from './configs/mongodb.js';
-import { clerkWebhooks } from './controllers/webhooks.js';
+import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js';
 import educatorRouter from './routes/educatorRoutes.js';
 import courseRouter from './routes/courseRoute.js';
 import { clerkMiddleware } from '@clerk/express';
@@ -18,7 +18,10 @@ app.use(cors());
 app.use(express.json());
 app.use(clerkMiddleware());  //applying clerk middleware to all routes (user data in req.auth)
 
+// webhooks route
 app.post('/clerk', express.raw({ type: 'application/json' }), clerkWebhooks);
+app.post('/stripe',express.raw({type: 'application/json'}), stripeWebhooks);
+
 app.use('/api/educator', express.json(), educatorRouter);
 app.use('/api/course', express.json(), courseRouter);
 app.use('/api/user',express.json(),userRouter)
