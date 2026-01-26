@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import express, { json } from 'express';
+import express from 'express';
 import cors from 'cors';
 import connectDB from './configs/mongodb.js';
 import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js';
@@ -14,17 +14,18 @@ const app = express();
 await connectDB();
 await connectCloudinary();
 
-app.use(cors());
-app.use(express.json());
-app.use(clerkMiddleware());  //applying clerk middleware to all routes (user data in req.auth)
 
-// webhooks route
+// webhooks route (requires raw req.body)
 app.post('/clerk', express.raw({ type: 'application/json' }), clerkWebhooks);
 app.post('/stripe',express.raw({type: 'application/json'}), stripeWebhooks);
 
-app.use('/api/educator', express.json(), educatorRouter);
-app.use('/api/course', express.json(), courseRouter);
-app.use('/api/user',express.json(),userRouter)
+app.use(cors());
+app.use(express.json()); //use it after webhook routes, webhook config need raw data not json 
+app.use(clerkMiddleware());  //applying clerk middleware to all routes (user data in req.auth)
+
+app.use('/api/educator', educatorRouter);
+app.use('/api/course', courseRouter);
+app.use('/api/user', userRouter)
 
 
 app.get('/', (req, res) => res.send("api working"));
