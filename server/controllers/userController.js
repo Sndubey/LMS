@@ -7,11 +7,7 @@ import { CourseProgress } from "../models/courseProgress.js";
 // Get User Data
 export const getUserData = async (req, res) => {
     try {
-        // 1. Call req.auth() as a function
-        const { userId } = req.auth();
-
-        // 2. Add a log to see the actual ID being sent to the DB
-        console.log("Searching for User ID:", userId);
+        const userId = req.auth.userId;
 
         if (!userId) {
             return res.json({ success: false, message: 'Authentication failed: No User ID' });

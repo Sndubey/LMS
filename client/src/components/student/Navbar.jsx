@@ -3,13 +3,41 @@ import { assets } from '../../assets/assets'
 import { Link } from 'react-router-dom'
 import { useClerk, UserButton, useUser } from '@clerk/clerk-react'  // UserButton is a component that shows the user's profile picture and name, and allows the user to sign out
 import { AppContext } from '../../context/AppContext'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Navbar = () => {
-  const { navigate, isEducator } = useContext(AppContext)
+  const { navigate, isEducator, backendUrl, setIsEducator, getToken } = useContext(AppContext)
   const isCourseListPage = location.pathname.includes('/course-list')  // Check if the current page is the course list page
-
   const { openSignIn } = useClerk()  // open sign up form when user clicks on sign up button
   const { user } = useUser()  // get user data from clerk
+
+  const becomeEducator = async () => {
+    try {
+      console.log("become educator")
+      if (isEducator) {
+        navigate('/educator')
+        return;
+      }
+
+      const token = await getToken()
+      const { data } = await axios.get(
+        backendUrl + '/api/educator/update-role',
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+
+
+      if (data.success) {
+        setIsEducator(true)
+        toast.success(data.message)
+      } else {
+        toast.error(data.message)
+      }
+
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
   return (
     <div className={`flex items-center justify-between px-4 sm:px-10 md:px-14 lg:px-36 border-b border-gray-500 py-4 ${isCourseListPage ? 'bg-white' : 'bg-cyan-100/70'}`}>
@@ -17,7 +45,7 @@ const Navbar = () => {
       <div className='hidden md:flex items-center gap-5 text-gray-500'>  {/* div for desktop screen */}
         <div className='flex items-center gap-5'>
           {user && <>
-            <button onClick={() => (navigate('/educator'))}>{isEducator ? 'Educator Dashboard' : 'Become Educator'}</button> |
+            <button onClick={() => (becomeEducator())}>{isEducator ? 'Educator Dashboard' : 'Become Educator'}</button> |
             <Link to='/my-enrollments'>My Enrollments</Link>
           </>}
         </div>
@@ -25,12 +53,12 @@ const Navbar = () => {
           <button onClick={() => openSignIn()} className='bg-blue-600 text-white px-5 py-2 rounded-full'>Create Account</button>
         }
       </div>
-      
+
       {/* for phone screen */}
       <div className='md:hidden flex items-center gap-2 sm:gap-5 text-gray-500'>  {/* div for mobile screen */}
         <div className='flex items-center gap-1 sm:gap-5 max-sm:text-xs'>
           {user && <>
-            <button onClick={() => (navigate('/educator'))}>{isEducator ? 'Educator Dashboard' : 'Become Educator'}</button> |
+            <button onClick={() => (becomeEducator())}>{isEducator ? 'Educator Dashboard' : 'Become Educator'}</button> |
             <Link to='/my-enrollments'>My Enrollments</Link>
           </>}
         </div>
