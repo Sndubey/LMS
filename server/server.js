@@ -19,7 +19,30 @@ await connectCloudinary();
 app.post('/clerk', express.raw({ type: 'application/json' }), clerkWebhooks);
 app.post('/stripe',express.raw({type: 'application/json'}), stripeWebhooks);
 
-app.use(cors());
+// 1. Define your allowed origins in an array
+// Note: Ensure there are NO trailing slashes (e.g., use .app NOT .app/)
+const allowedOrigins = [
+  'http://localhost:5173', // Vite's default port (seen in your screenshot)
+  'https://your-frontend-domain.vercel.app' // Your actual FRONTEND URL
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+
 app.use(express.json()); //use it after webhook routes, webhook config need raw data not json 
 app.use(clerkMiddleware());  //applying clerk middleware to all routes (user data in req.auth)
 
