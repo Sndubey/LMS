@@ -23,7 +23,7 @@ app.post('/stripe',express.raw({type: 'application/json'}), stripeWebhooks);
 // Note: Ensure there are NO trailing slashes (e.g., use .app NOT .app/)
 const allowedOrigins = [
   'http://localhost:5173', // Vite's default port (seen in your screenshot)
-  'https://lms-frontend-three-chi.vercel.app/' // Your actual FRONTEND URL
+  'https://lms-frontend-three-chi.vercel.app' // Your actual FRONTEND URL
 ];
 
 app.use(cors({
