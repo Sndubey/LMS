@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import uniqid from "uniqid";
 import Quill from "quill";
 import { assets } from "../../assets/assets";
+import AppContext from '../../context/AppContext'
 
 const AddCourse = () => {
   const quilRef = useRef(null);
   const editorRef = useRef(null);
+  const {backendUrl, getToken} = useContext(AppContext)
 
   const [courseTitle, setCourseTitle] = useState("");
   const [coursePrice, setCoursePrice] = useState(0);
@@ -93,7 +95,12 @@ const AddCourse = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
+      
+    } catch (error) {
+      
+    }
   }
 
   useEffect(() => {

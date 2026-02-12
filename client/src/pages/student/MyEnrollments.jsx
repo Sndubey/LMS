@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { Line } from 'rc-progress';
 import Footer from '../../components/student/Footer';
@@ -9,6 +9,7 @@ const MyEnrollments = () => {
 
   const { enrolledCourses, calculateCourseDuration, navigate, userData, fetchUserEnrolledCourses, backendUrl, getToken, calculateNoOfLectures } = useContext(AppContext);
   const [progressArray, setProgressArray] = useState([]);
+  const hasFetchedProgress = useRef(false);  // ✅ Add ref to track if we've fetched
 
   const getCourseProgress = async () => {
     try {
@@ -17,7 +18,7 @@ const MyEnrollments = () => {
         enrolledCourses.map(async (course) => {
           const { data } = await axios.get(
             `${backendUrl}/api/user/get-course-progress?courseId=${course._id}`,
-            { headers: { Authorization: `Bearer ${token}` } }  // ✅ Include auth header
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           let totalLectures = calculateNoOfLectures(course);
           const lectureCompleted = data.progressData
@@ -32,17 +33,20 @@ const MyEnrollments = () => {
     }
   };
 
+  // ✅ Fetch enrolled courses only once when userData is available
   useEffect(() => {
     if (userData) {
-      fetchUserEnrolledCourses()
+      fetchUserEnrolledCourses();
     }
-  }, [userData, fetchUserEnrolledCourses])
+  }, [userData]);  // Remove fetchUserEnrolledCourses from dependencies
 
+  // ✅ Fetch progress only once when enrolledCourses first loads
   useEffect(() => {
-    if (enrolledCourses.length > 0) {
-      getCourseProgress()
+    if (enrolledCourses.length > 0 && !hasFetchedProgress.current) {
+      getCourseProgress();
+      hasFetchedProgress.current = true;  // Mark as fetched
     }
-  }, [enrolledCourses])
+  }, [enrolledCourses]);
 
   return (
     <>
@@ -76,11 +80,11 @@ const MyEnrollments = () => {
                 <td className='px-4 py-3 max-sm:hidden'>
                   {calculateCourseDuration(course)}
                 </td>
-                <td className='px-4 py-3 max-sm:hidden'>{progressArray[index] && `${progressArray[index].
-                  lectureCompleted} / ${progressArray[index].totalLectures}`} <span>Lectures</span></td>
+                <td className='px-4 py-3 max-sm:hidden'>{progressArray[index] && `${progressArray[index].lectureCompleted} / ${progressArray[index].totalLectures}`} <span>Lectures</span></td>
                 <td className='px-4 py-3 max-sm:text-right'>
                   <button onClick={() => navigate('/player/' + course._id)} className='px-3 sm:px-5 py-1.5 sm:py-2 bg-blue-600 max-sm:text-xs text-white'>
-                    {progressArray[index] && progressArray[index].lectureCompleted / progressArray[index].totalLectures == 1 ? 'Completed' : 'On going'}</button>
+                    {progressArray[index] && progressArray[index].lectureCompleted / progressArray[index].totalLectures == 1 ? 'Completed' : 'On going'}
+                  </button>
                 </td>
               </tr>
             ))}
@@ -89,7 +93,6 @@ const MyEnrollments = () => {
       </div>
 
       <Footer />
-
     </>
   )
 }

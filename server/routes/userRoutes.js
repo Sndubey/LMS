@@ -5,7 +5,7 @@ import { getUserCourseProgress, getUserData, purchaseCourse, updateUserCoursePro
 const userRouter = express.Router()
 
 userRouter.get('/data', ClerkExpressRequireAuth(), getUserData)
-userRouter.get('/enrolled-courses', userEnrolledCourses)
+userRouter.get('/enrolled-courses', ClerkExpressRequireAuth(), userEnrolledCourses)
 userRouter.post('/purchase',ClerkExpressRequireAuth(), purchaseCourse)
 
 userRouter.post('/update-course-progress',ClerkExpressRequireAuth(), updateUserCourseProgress)
