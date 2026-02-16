@@ -179,7 +179,7 @@ const CourseDetails = () => {
           {
             playerData ?
               <ReactPlayer
-                url={playerData.videoUrl}
+                src={playerData.videoUrl}
                 controls
                 width="100%"
                 height="100%"
