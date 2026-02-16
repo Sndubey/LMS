@@ -3,7 +3,7 @@ import { AppContext } from '../../context/AppContext';
 import { useParams } from 'react-router-dom';
 import { assets } from '../../assets/assets';
 import humanizeDuration from 'humanize-duration';
-import YouTube from 'react-youtube';
+import ReactPlayer from 'react-player';
 import Footer from '../../components/student/Footer';
 import Rating from '../../components/student/Rating';
 import Loading from '../../components/student/Loading'
@@ -72,9 +72,9 @@ const Player = () => {
     try {
       const token = await getToken()
       const { data } = await axios.get(  // ✅ Changed to GET
-      `${backendUrl}/api/user/get-course-progress?courseId=${courseId}`,  // ✅ Query parameter
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
+        `${backendUrl}/api/user/get-course-progress?courseId=${courseId}`,  // ✅ Query parameter
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
 
       if (data.success) {
         setProgressData(data.progressData)
@@ -106,9 +106,9 @@ const Player = () => {
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     getCourseProgress()
-  },[])
+  }, [])
 
   return courseData ? (
     <>
@@ -160,7 +160,7 @@ const Player = () => {
 
           <div className='flex items-center gap-2 py-3 mt-10'>
             <h1 className='text-xl font-bold'>Rate this course</h1>
-            <Rating initialRating={0} onRate={handleRate}/>
+            <Rating initialRating={0} onRate={handleRate} />
           </div>
 
         </div>
@@ -168,23 +168,40 @@ const Player = () => {
         {/* right column */}
         <div className='md:mt-10'>
           {playerData ? (
-            <div >
-              <YouTube videoId={playerData.lectureUrl ? playerData.lectureUrl.split('/').pop() : ''} iframeClassName="w-full aspect-video" />
+            <div>
+              <ReactPlayer
+                // Change 'videoUrl' to 'lectureUrl' to match your data structure
+                src={playerData.lectureUrl}
+                controls
+                width="100%"
+                height="100%"
+                className="aspect-video"
+                playing
+                config={{
+                  file: {
+                    attributes: {
+                      controlsList: 'nodownload'
+                    }
+                  }
+                }}
+              />
+              
               <div className='flex justify-between items-center mt-1'>
-                <p>{playerData.chapter}.{playerData.lecture}{playerData.lectureTitle}</p>
-                <button onClick={()=> markLectureAsCompleted(playerData.lectureId)} className='text-blue-600'>{progressData && progressData.lectureCompleted.includes(playerData.lectureId) ? 'completed' : 'Mark Complete'}</button>
+                <p>{playerData.chapter}.{playerData.lecture} {playerData.lectureTitle}</p>
+                <button onClick={() => markLectureAsCompleted(playerData.lectureId)} className='text-blue-600'>
+                  {progressData && progressData.lectureCompleted.includes(playerData.lectureId) ? 'completed' : 'Mark Complete'}
+                </button>
               </div>
             </div>
-          )
-            :
-            <img src={courseData ? courseData.courseThumbnail : ''} />
-          }
+          ) : (
+            <img src={courseData ? courseData.courseThumbnail : ''} alt="thumbnail" />
+          )}
         </div>
       </div>
 
       <Footer />
     </>
-  ) : <Loading/>
+  ) : <Loading />
 }
 
 export default Player

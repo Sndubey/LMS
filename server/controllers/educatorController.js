@@ -30,24 +30,54 @@ export const updateRoleToEducator = async (req, res) => {
 
 export const addCourse = async (req, res) => {
     try {
-        const { courseData } = req.body
-        const imageFile = req.file
+        const { courseData, videoMapping } = req.body
+        const imageFile = req.files?.image?.[0]
+        const videoFiles = req.files?.videos || []
         const educatorId = req.auth.userId
 
         if (!imageFile) {
             return res.json({ success: false, message: 'Thumbnail Not Attached' })
         }
 
-        const parsedCourseData = await JSON.parse(courseData)
+        const parsedCourseData = JSON.parse(courseData)
+        const parsedVideoMapping = JSON.parse(videoMapping)
         parsedCourseData.educator = educatorId
+
+        // Upload thumbnail
+        const imageUpload = await cloudinary.uploader.upload(imageFile.path)
+
+        // Upload videos to Cloudinary
+        const videoUploads = await Promise.all(
+            videoFiles.map(file =>
+                cloudinary.uploader.upload(file.path, {
+                    resource_type: 'video',
+                    folder: 'course-videos'
+                })
+            )
+        );
+
+        // Map video URLs to lectures
+        videoFiles.forEach((file, index) => {
+            const lectureId = parsedVideoMapping[file.originalname];
+            const videoUrl = videoUploads[index].secure_url;
+
+            // Find and update the lecture with video URL
+            parsedCourseData.courseContent.forEach(chapter => {
+                const lecture = chapter.chapterContent.find(lec => lec.lectureId === lectureId);
+                if (lecture) {
+                    lecture.lectureUrl = videoUrl;
+                }
+            });
+        });
+
         const newCourse = await Course.create(parsedCourseData)
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path)  //if we fetched img url first then db call and if db call fails then cloudinary will have orphan img which takes useless memory
         newCourse.courseThumbnail = imageUpload.secure_url
-        await newCourse.save()  //saving updated data to db
+        await newCourse.save()
 
         res.json({ success: true, message: 'Course Added' })
     } catch (error) {
         console.log({ success: false, message: error.message });
+        res.json({ success: false, message: error.message });
     }
 }
 

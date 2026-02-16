@@ -12,6 +12,7 @@ const AddCourse = () => {
   const { backendUrl, getToken } = useContext(AppContext)
 
   const [courseTitle, setCourseTitle] = useState("");
+  const [videoFiles, setVideoFiles] = useState({}); // Add this line after other useState
   const [coursePrice, setCoursePrice] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [image, setImage] = useState(null);
@@ -71,31 +72,44 @@ const AddCourse = () => {
   };
 
   const addLecture = () => {
-    // Validate inputs
     if (!lectureDetails.lectureTitle || !lectureDetails.lectureDuration || !lectureDetails.lectureUrl) {
       toast.error("Please fill all lecture fields");
       return;
     }
+
+    const lectureId = uniqid();
+    const videoFile = videoFiles[currentChapterId + '-temp'];
 
     setChapters(
       chapters.map((chapter) => {
         if (chapter.chapterId === currentChapterId) {
           const newLecture = {
             lectureTitle: lectureDetails.lectureTitle,
-            lectureDuration: Number(lectureDetails.lectureDuration) * 60, // Convert minutes to seconds
-            lectureUrl: lectureDetails.lectureUrl,
+            lectureDuration: Number(lectureDetails.lectureDuration) * 60,
+            lectureUrl: lectureDetails.lectureUrl, // Temporarily store filename
             isPreviewFree: lectureDetails.isPreviewFree,
             lectureOrder:
               chapter.chapterContent.length > 0
                 ? chapter.chapterContent.slice(-1)[0].lectureOrder + 1
                 : 1,
-            lectureId: uniqid(),
+            lectureId: lectureId,
           };
           chapter.chapterContent.push(newLecture);
         }
         return chapter;
       })
     );
+
+    // Store video file with lectureId
+    if (videoFile) {
+      setVideoFiles(prev => {
+        const updated = { ...prev };
+        delete updated[currentChapterId + '-temp'];
+        updated[lectureId] = videoFile;
+        return updated;
+      });
+    }
+
     setShowPopup(false);
     setLectureDetails({
       lectureTitle: "",
@@ -118,6 +132,16 @@ const AddCourse = () => {
         return;
       }
 
+      // Check if all lectures have videos
+      const allLecturesHaveVideos = chapters.every(chapter =>
+        chapter.chapterContent.every(lecture => videoFiles[lecture.lectureId])
+      );
+
+      if (!allLecturesHaveVideos) {
+        toast.error('Please upload videos for all lectures')
+        return;
+      }
+
       const courseData = {
         courseTitle,
         courseDescription: quilRef.current.root.innerHTML,
@@ -130,12 +154,30 @@ const AddCourse = () => {
       formData.append('courseData', JSON.stringify(courseData))
       formData.append('image', image)
 
+      // Create video mapping: filename -> lectureId
+      const videoMapping = {};
+      Object.entries(videoFiles).forEach(([lectureId, file]) => {
+        videoMapping[file.name] = lectureId;
+        formData.append('videos', file);
+      });
+
+      formData.append('videoMapping', JSON.stringify(videoMapping))
+
       const token = await getToken()
+
       const { data } = await axios.post(
         backendUrl + '/api/educator/add-course',
         formData,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            toast.info(`Uploading: ${percentCompleted}%`, { autoClose: false, toastId: 'upload-progress' });
+          }
+        }
       )
+
+      toast.dismiss('upload-progress');
 
       if (data.success) {
         toast.success(data.message)
@@ -144,12 +186,14 @@ const AddCourse = () => {
         setDiscount(0)
         setImage(null)
         setChapters([])
+        setVideoFiles({})
         quilRef.current.root.innerHTML = ""
       } else {
         toast.error(data.message)
       }
 
     } catch (error) {
+      toast.dismiss('upload-progress');
       toast.error(error.message)
     }
   }
@@ -278,17 +322,8 @@ const AddCourse = () => {
                       key={lecture.lectureId}
                       className="flex justify-between items-center mb-3 p-2 bg-gray-50 rounded"
                     >
-                      <span className="text-sm">
-                        {lectureIndex + 1}. {lecture.lectureTitle} - {Math.floor(lecture.lectureDuration / 60)} mins -{" "}
-                        <a
-                          href={lecture.lectureUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline"
-                        >
-                          Link
-                        </a>{" "}
-                        - {lecture.isPreviewFree ? "Free Preview" : "Paid"}
+                      <span className="text-green-600">
+                        {videoFiles[lecture.lectureId] ? '✓ Video' : lecture.lectureUrl}
                       </span>
                       <img
                         src={assets.cross_icon}
@@ -354,6 +389,33 @@ const AddCourse = () => {
               />
             </div>
 
+
+            <div className="mb-4">
+              <p className="mb-1 font-medium">Upload Video</p>
+              <input
+                type="file"
+                accept="video/*"
+                className="mt-1 block w-full border border-gray-300 rounded py-2 px-3 outline-none focus:border-blue-500"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setLectureDetails({
+                      ...lectureDetails,
+                      lectureUrl: file.name, // Store filename temporarily
+                    });
+                    // Store file temporarily with a unique key
+                    setVideoFiles(prev => ({
+                      ...prev,
+                      [currentChapterId + '-temp']: file
+                    }));
+                  }
+                }}
+              />
+              {lectureDetails.lectureUrl && (
+                <p className="mt-1 text-sm text-gray-600">Selected: {lectureDetails.lectureUrl}</p>
+              )}
+            </div>
+
             <div className="mb-4">
               <p className="mb-1 font-medium">Duration (minutes)</p>
               <input
@@ -368,22 +430,6 @@ const AddCourse = () => {
                 }
                 placeholder="Enter duration in minutes"
                 min="1"
-              />
-            </div>
-
-            <div className="mb-4">
-              <p className="mb-1 font-medium">Lecture URL</p>
-              <input
-                type="text"
-                className="mt-1 block w-full border border-gray-300 rounded py-2 px-3 outline-none focus:border-blue-500"
-                value={lectureDetails.lectureUrl}
-                onChange={(e) =>
-                  setLectureDetails({
-                    ...lectureDetails,
-                    lectureUrl: e.target.value,
-                  })
-                }
-                placeholder="Enter video URL"
               />
             </div>
 

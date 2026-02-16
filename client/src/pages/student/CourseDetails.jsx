@@ -5,7 +5,7 @@ import Loading from "../../components/student/Loading";
 import { assets } from "../../assets/assets";
 import humanizeDuration from "humanize-duration";
 import Footer from "../../components/student/Footer";
-import YouTube from "react-youtube";
+import ReactPlayer from "react-player";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -16,7 +16,7 @@ const CourseDetails = () => {
   const [openSections, setOpenSections] = useState({});  //key-value pair, index-boolean, to track every section open/close state.
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
   const [playerData, setPlayerData] = useState(null);
-  const {calculateRating, calculateChapterTime, calculateCourseDuration, calculateNoOfLectures, currency, backendUrl, userData, getToken } = useContext(AppContext);
+  const { calculateRating, calculateChapterTime, calculateCourseDuration, calculateNoOfLectures, currency, backendUrl, userData, getToken } = useContext(AppContext);
 
   const fetchCourseData = async () => {
     try {
@@ -34,22 +34,24 @@ const CourseDetails = () => {
 
   const enrollCourse = async () => {
     try {
-      if(!userData){
+      if (!userData) {
         return toast.warn('Login to Enroll')
       }
 
-      if(isAlreadyEnrolled){
+      if (isAlreadyEnrolled) {
         return toast.warn('Already Enrolled')
       }
 
       const token = await getToken();
 
-      const {data} = await axios.post(backendUrl + '/api/user/purchase', {courseId: courseData._id}, {headers:{
-        Authorization:`Bearer ${token}`
-      }})
+      const { data } = await axios.post(backendUrl + '/api/user/purchase', { courseId: courseData._id }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-      if(data.success){
-        const {session_url} = data;
+      if (data.success) {
+        const { session_url } = data;
         window.location.replace(session_url)
       } else {
         toast.error(data.message)
@@ -65,7 +67,7 @@ const CourseDetails = () => {
   }, []);
 
   useEffect(() => {
-    if(userData && courseData){
+    if (userData && courseData) {
       setIsAlreadyEnrolled(userData.enrolledCourses.includes(courseData._id))
     }
   }, [userData, courseData])
@@ -84,7 +86,7 @@ const CourseDetails = () => {
       <div className="flex md:flex-row flex-col-reverse gap-10 relative items-start justify-between md:px-35 px-8 md:pt-30 pt-20 text-left">
 
         <div className="absolute top-0 left-0 w-full h-section-height -z-1 bg-gradient-to-b from-cyan-100/70"></div>
-        
+
         {/* left column */}
         <div className="flex-1 max-w-3xl z-10 text-gray-500">
           <h1 className="md:text-4xl text-2xl font-semibold text-gray-800">{courseData.courseTitle}</h1>
@@ -110,15 +112,15 @@ const CourseDetails = () => {
             <div className="space-y-2">
               {courseData.courseContent.map((chapter, index) => (
                 <div key={index} className="border border-gray-300 bg-white rounded overflow-hidden">
-                  <div 
-                    onClick={() => toggleSection(index)} 
+                  <div
+                    onClick={() => toggleSection(index)}
                     className="flex items-center justify-between px-4 py-3 cursor-pointer select-none hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-2 flex-1">
-                      <img 
-                        className={`w-3 h-3 transform transition-transform ${openSections[index] ? 'rotate-180' : ''}`} 
-                        src={assets.down_arrow_icon} 
-                        alt="arrow icon" 
+                      <img
+                        className={`w-3 h-3 transform transition-transform ${openSections[index] ? 'rotate-180' : ''}`}
+                        src={assets.down_arrow_icon}
+                        alt="arrow icon"
                       />
                       <p className="font-medium md:text-base text-sm">{chapter.chapterTitle}</p>
                     </div>
@@ -136,13 +138,13 @@ const CourseDetails = () => {
                             <p className="flex-1">{lecture.lectureTitle}</p>
                             <div className='flex gap-3 items-center ml-4 flex-shrink-0'>
                               {lecture.isPreviewFree && (
-                                <p 
+                                <p
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setPlayerData({
-                                      videoId: lecture.lectureUrl.split('/').pop(), // videoId is the last part of the URL
+                                      videoUrl: lecture.lectureUrl,
                                     });
-                                  }} 
+                                  }}
                                   className='text-blue-500 cursor-pointer hover:underline'
                                 >
                                   Preview
@@ -176,10 +178,13 @@ const CourseDetails = () => {
         <div className="course-card custom-card z-10 rounded-lg md:rounded-none overflow-hidden bg-white w-full md:w-auto min-w-[300px] md:min-w-[420px] md:sticky md:top-20">
           {
             playerData ?
-              <YouTube 
-                videoId={playerData.videoId} 
-                opts={{ playerVars: { autoplay: 1 } }} 
-                iframeClassName="w-full aspect-video" 
+              <ReactPlayer
+                url={playerData.videoUrl}
+                controls
+                width="100%"
+                height="100%"
+                className="aspect-video"
+                playing
               />
               :
               <img src={courseData.courseThumbnail} alt={courseData.courseTitle} className="w-full object-cover" />
@@ -221,13 +226,12 @@ const CourseDetails = () => {
 
             </div>
 
-            <button 
-              onClick={enrollCourse} 
-              className={`md:mt-6 mt-4 w-full py-3 rounded font-medium transition-colors ${
-                isAlreadyEnrolled 
-                  ? 'bg-gray-400 text-white cursor-not-allowed' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
+            <button
+              onClick={enrollCourse}
+              className={`md:mt-6 mt-4 w-full py-3 rounded font-medium transition-colors ${isAlreadyEnrolled
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
               disabled={isAlreadyEnrolled}
             >
               {isAlreadyEnrolled ? "Already Enrolled" : "Enroll Now"}
