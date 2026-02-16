@@ -43,7 +43,9 @@ app.use(cors({
 }));
 
 
-app.use(express.json()); //use it after webhook routes, webhook config need raw data not json 
+app.use(express.json({ limit: '50mb' })); //use it after webhook routes, webhook config need raw data not json 
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 app.use(clerkMiddleware());  //applying clerk middleware to all routes (user data in req.auth)
 
 app.use('/api/educator', educatorRouter);
